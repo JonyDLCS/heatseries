@@ -1,4 +1,5 @@
 # HeatSeries
+<img src=preview.png/>
 
 See the IMDb rating of every episode of a TV series as a heatmap: seasons down the side, episodes across, each cell colored by its score.
 
