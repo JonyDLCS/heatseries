@@ -1,0 +1,22 @@
+name: Refresh IMDb data
+
+# Each Vercel deploy downloads IMDb's latest datasets and rebuilds data/imdb.sqlite,
+# so a weekly redeploy keeps the ratings fresh.
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel deploy hook
+        env:
+          DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "::error::Add the VERCEL_DEPLOY_HOOK repository secret (Vercel > Project > Settings > Git > Deploy Hooks)."
+            exit 1
+          fi
+          curl -fsS -X POST "$DEPLOY_HOOK"
