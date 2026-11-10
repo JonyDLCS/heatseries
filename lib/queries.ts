@@ -94,6 +94,21 @@ export async function getSeries(db: Client, imdbID: string): Promise<Series | nu
   };
 }
 
+export type DataInfo = { builtAt: string; series: number; episodes: number };
+
+/** When the import ran and what it stored, from the `meta` table it writes last. */
+export async function getDataInfo(db: Client): Promise<DataInfo | null> {
+  const result = await db.execute("SELECT key, value FROM meta");
+  const meta = new Map(result.rows.map((row) => [str(row.key), str(row.value)]));
+  const builtAt = meta.get("built_at");
+  if (!builtAt || Number.isNaN(Date.parse(builtAt))) return null;
+  return {
+    builtAt,
+    series: Number(meta.get("series") ?? 0),
+    episodes: Number(meta.get("episodes") ?? 0),
+  };
+}
+
 export async function getShowRatings(db: Client, imdbID: string): Promise<ShowRatings | null> {
   const series = await getSeries(db, imdbID);
   if (!series) return null;

@@ -1,7 +1,7 @@
 import { createClient, type Client } from "@libsql/client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { getSeries, getShowRatings, searchSeries } from "./queries";
+import { getDataInfo, getSeries, getShowRatings, searchSeries } from "./queries";
 import { INDEX_SQL, SCHEMA_SQL } from "./schema";
 import { normalizeSearch } from "./text";
 
@@ -111,6 +111,28 @@ describe("getSeries", () => {
   it("returns null for unknown or invalid IDs", async () => {
     expect(await getSeries(db, "tt9999999")).toBeNull();
     expect(await getSeries(db, "nonsense")).toBeNull();
+  });
+});
+
+describe("getDataInfo", () => {
+  it("returns null before the import has written its metadata", async () => {
+    expect(await getDataInfo(db)).toBeNull();
+  });
+
+  it("reads the build time and counts", async () => {
+    await db.batch(
+      [
+        { sql: "INSERT INTO meta (key, value) VALUES ('built_at', ?)", args: ["2026-11-10T01:15:19.111Z"] },
+        { sql: "INSERT INTO meta (key, value) VALUES ('series', '46877')", args: [] },
+        { sql: "INSERT INTO meta (key, value) VALUES ('episodes', '933722')", args: [] },
+      ],
+      "write",
+    );
+    expect(await getDataInfo(db)).toEqual({
+      builtAt: "2026-11-10T01:15:19.111Z",
+      series: 46877,
+      episodes: 933722,
+    });
   });
 });
 

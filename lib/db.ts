@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { createClient, type Client } from "@libsql/client";
+import { cacheLife } from "next/cache";
 
 import * as queries from "./queries";
 import type { SearchResult, Series, ShowRatings } from "./types";
@@ -34,4 +35,17 @@ export function getSeries(imdbID: string): Promise<Series | null> {
 
 export function getShowRatings(imdbID: string): Promise<ShowRatings | null> {
   return queries.getShowRatings(db(), imdbID);
+}
+
+/** The database only changes on rebuild, which needs a restart or redeploy, so this can be cached. */
+export async function getDataInfo(): Promise<queries.DataInfo | null> {
+  "use cache";
+  cacheLife("days");
+
+  if (!hasDatabase()) return null;
+  try {
+    return await queries.getDataInfo(db());
+  } catch {
+    return null;
+  }
 }
