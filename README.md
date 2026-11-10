@@ -2,6 +2,8 @@
 
 See the IMDb rating of every episode of a TV series as a heatmap: seasons down the side, episodes across, each cell colored by its score.
 
+**Live: [heatseries.vercel.app](https://heatseries.vercel.app)**
+
 - Search about 47,000 series by title (English or original, accents optional).
 - Heatmap with season averages, a hover tooltip (title, year, score, votes), and a toggle to flip seasons between rows and columns. Each cell links to the episode on IMDb.
 - Very long seasons (One Piece has 1,180 episodes in a single IMDb "season") wrap into rows of 25, each with its own average.
